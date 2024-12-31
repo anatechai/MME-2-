@@ -4222,11 +4222,38 @@ function CalendarWidget(settings) {
                 var virtLinkElement = document.createElement("a");
                 virtLinkElement.setAttribute("href", options.requestOptions.requestUrl);
                 var attrValue = checkIfShouldAbort(virtLinkElement, options);
-                if (attrValue) {
-                    el.setAttribute(attrState, attrValue);
-                    return
-                }
-                event.preventDefault();
+                document.addEventListener("DOMContentLoaded", function() {
+                    const navLinks = document.querySelectorAll(".navPages .nav .moduleMenu a");
+                
+                    navLinks.forEach(function(link) {
+                        link.addEventListener("click", function(event) {
+                            // Clone the options (you can define this based on your requirements)
+                            var options = clone(this.options);
+                
+                            // Get the request URL and method from the link's attributes
+                            options.requestOptions = {
+                                requestUrl: link.getAttribute("href") || window.location.href,
+                                requestMethod: "GET" // Assuming GET request; modify if needed
+                            };
+                
+                            // Create a virtual link element to check if the request should be aborted
+                            var virtLinkElement = document.createElement("a");
+                            virtLinkElement.setAttribute("href", options.requestOptions.requestUrl);
+                
+                            // Check if the operation should be aborted
+                            var attrValue = checkIfShouldAbort(virtLinkElement, options);
+                            if (attrValue) {
+                                // Set a certain state or attribute if abortion condition is met
+                                link.setAttribute("data-attr-state", attrValue); // Example attribute to hold the state
+                                // Navigation is stopped here because we return early
+                                return;
+                            }
+                
+                            // No preventDefault() is called here, so the default navigation behavior is allowed to proceed
+                        });
+                    });
+                });
+                
                 if (el.enctype === "multipart/form-data") {
                     options.requestOptions.formData = new FormData(el)
                 } else {
